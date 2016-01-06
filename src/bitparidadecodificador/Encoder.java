@@ -5,6 +5,8 @@
  */
 package bitparidadecodificador;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.BitSet;
@@ -19,8 +21,12 @@ public class Encoder {
     public static final int COLUMN = 1;
     public static final int BYTE = 8;
 
-    public void encoder(String filename) {
-        try (RandomAccessFile in = new RandomAccessFile(filename, "rw")) {
+    public void encoder(String filename) throws Exception {
+        //Utilizo esses dois Files para poder fazer a troca de nomes depois
+        File source = new File(filename);
+        File destiny = new File("temp.bin");
+        try (RandomAccessFile in = new RandomAccessFile(source, "rw"); FileOutputStream out = new FileOutputStream(destiny)) {
+            //variável que monitora se na leitura do array de bytes foi gerado algum byte de redundância
             long redundant = 0;
             while (in.getFilePointer() < in.length()) {
                 byte[] bytes = null;
@@ -34,35 +40,25 @@ public class Encoder {
                     in.read(bytes);
                 }
 
-                //TODO resolver o append dos bytes de paridade no arquivo sem sobreposição.
-                System.out.println("Mostrando bytes lidos:\n");
-                for (int i = 0; i < bytes.length; i++) {
-                    display(bytes[i]);
-                    if (i != 0 && (i + 1) % BYTE == 0) {
-                        System.out.println("");
-                    }
-                }
-                System.out.println("\n");
+                showBytes(bytes, "lidos");
 
                 int matrix[][] = populateMatrix(bytes);
 
-                System.out.println("Mostrando mapeamento para matriz:\n");
-                printMatrix(matrix);
-                System.out.println("\n");
+                showBuildedMatrix(matrix);
+
                 byte[] parity = calculateBitParity(matrix);
-                System.out.println("Mostrando bits de paridade:\n");
-                for (int i = 0; i < parity.length; i++) {
-                    display(parity[i]);
-                    if (i != 0 && (i + 1) % BYTE == 0) {
-                        System.out.println("");
-                    }
-                }
+
+                showBytes(parity, "de paridade");
+
                 System.out.println("\n");
                 System.out.println("---------------------------------");
-                in.seek(in.getFilePointer() - (BYTE - redundant));
-                in.write(parity[ROW]);
-                in.write(parity[COLUMN]);
-                in.seek(in.getFilePointer() + (BYTE - redundant));
+
+                out.write(parity[ROW]);
+                out.write(parity[COLUMN]);
+
+                for (int i = 0; i < bytes.length - redundant; i++) {
+                    out.write(bytes[i]);
+                }
             }
             System.out.println("");
             if (redundant > 0) {
@@ -73,10 +69,14 @@ public class Encoder {
         } catch (Exception ex) {
             System.err.println(ex.toString());
         }
+        if (source.delete()) {
+            destiny.renameTo(source);
+        } else {
+            throw new Exception("Erro na renomeação de arquivo!");
+        }
     }
 
     public static void display(int value) {
-//        System.out.printf("\nBit representation of % d is: \n", value);
         // cria um valor inteiro com 1 no bit mais à esquerda e 0s em outros locais
         int displayMask = 1 << 7;
         // para cada bit exibe 0 ou 1
@@ -141,5 +141,24 @@ public class Encoder {
         }
         byte[] resp = {row.toByteArray()[0], column.toByteArray()[0]};
         return resp;
+    }
+
+    private static void showBytes(byte bytes[], String byteType) {
+        if (!byteType.isEmpty()) {
+            System.out.println("Mostrando bytes " + byteType + " :\n");
+        }
+        for (int i = 0; i < bytes.length; i++) {
+            display(bytes[i]);
+            if (i != 0 && (i + 1) % BYTE == 0) {
+                System.out.println("");
+            }
+        }
+        System.out.println("\n");
+    }
+
+    private void showBuildedMatrix(int[][] matrix) {
+        System.out.println("Mostrando mapeamento para matriz:\n");
+        printMatrix(matrix);
+        System.out.println("\n");
     }
 }

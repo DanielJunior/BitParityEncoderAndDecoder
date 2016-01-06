@@ -5,14 +5,14 @@
  */
 package bitparidadecodificador;
 
-import java.io.FileNotFoundException;
+import java.io.FileInputStream;
 import java.io.PrintWriter;
 
 /**
  *
  * @author danieljunior
  */
-public class FileGenerator {
+public class FileHandler {
 
     public static void generateFile(String filename, Object data) {
         try (PrintWriter print = new PrintWriter(filename)) {
@@ -20,6 +20,13 @@ public class FileGenerator {
             print.flush();
         } catch (Exception e) {
             System.err.println("Erro na criação do arquivo : " + filename);
+        }
+    }
+
+    public static void readBitFile(String filename) {
+        try (FileInputStream in = new FileInputStream(filename)) {
+            byte bytes[] = new byte[Encoder.BYTE];
+        } catch (Exception e) {
         }
     }
 
