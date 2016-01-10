@@ -21,6 +21,7 @@ public class Decoder {
     public static final int READ_BYTES = 10;
     public static final int BYTE = 8;
     public static final int DISPLAY_MASK = 1 << 7;
+    public int matrix[][] ;
 
     public void decoder(String filename) throws Exception {
         
@@ -44,9 +45,9 @@ public class Decoder {
 
                 showBytes(bytes, "lidos");
                 
-                int matrix[][] = populateMatrix(bytes);
+                matrix = populateMatrix(bytes);
                 System.out.println();
-                showBuildedMatrix(matrix);
+                showBuildedMatrix();
 
                 int [] rowParity = recoversParity(bytes[0], "linhas (lido do arquivo)");
                 int [] columnParity = recoversParity(bytes[1], "colunas (lido do arquivo)");
@@ -58,6 +59,8 @@ public class Decoder {
                 
                 ArrayList<Integer> linesWithErrors = checkerErrors(rowParity, calculatedParityLines);
                 ArrayList<Integer> columnsWithErrors = checkerErrors(columnParity, parityCalculatedColumns);
+                validatesCorrection(linesWithErrors, columnsWithErrors);
+                
                 
                 System.out.println("\n");
                 System.out.println("---------------------------------");
@@ -74,9 +77,19 @@ public class Decoder {
         }
     }
     
-    public static void validatesCorrection(ArrayList<Integer> linesWithErrors, ArrayList<Integer> columnsWithErrors){
+    private void correctsError(int rowWithError, int columnWithError){
+        int bitError =  matrix[rowWithError][columnWithError];
+        if(bitError == 1){
+            matrix[rowWithError][columnWithError] = 0;
+        } else {
+            matrix[rowWithError][columnWithError] = 1;
+        }
+    }
+    
+    private void validatesCorrection(ArrayList<Integer> linesWithErrors, ArrayList<Integer> columnsWithErrors){
+      System.out.println();
       if(linesWithErrors.isEmpty() && columnsWithErrors.isEmpty()){
-          System.out.println("As paridades são iguais. Os dados estão corretos.");    
+          System.out.println("As paridades são iguais. O dado está correto.");    
       } else {
           
           System.out.println("O dado foi danificado.");
@@ -87,6 +100,8 @@ public class Decoder {
               System.out.println("Recuperação impossível. Não se sabe ao certo qual bit foi danificado.");
           } else {
               System.out.println("Recuperação realizada. O bit danificado foi identificado e recuperado.");
+              // exite um erro na linha e um na coluna.
+              correctsError(linesWithErrors.get(0), columnsWithErrors.get(0));
           }
       }
     }
@@ -142,7 +157,7 @@ public class Decoder {
         return matrix;
     }
 
-    private void printMatrix(int[][] matrix) {
+    private void printMatrix() {
         for (int i = 0; i < matrix.length; i++) {
             for (int j = 0; j < matrix[i].length; j++) {
                 System.out.print(matrix[i][j] + " ");
@@ -193,9 +208,9 @@ public class Decoder {
         System.out.println("\n");
     }
 
-    private void showBuildedMatrix(int[][] matrix) {
+    private void showBuildedMatrix() {
         System.out.println("Mostrando mapeamento para matriz:\n");
-        printMatrix(matrix);
+        printMatrix();
         System.out.println("\n");
     }
        
