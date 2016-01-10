@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.util.ArrayList;
 import java.util.BitSet;
 
 /**
@@ -42,14 +43,21 @@ public class Decoder {
                 }
 
                 showBytes(bytes, "lidos");
-                int [] rowParity = recoversParity(bytes[0], "linha");
-                int [] columnParity = recoversParity(bytes[1], "coluna");
                 
                 int matrix[][] = populateMatrix(bytes);
                 System.out.println();
                 showBuildedMatrix(matrix);
 
+                int [] rowParity = recoversParity(bytes[0], "linhas (lido do arquivo)");
+                int [] columnParity = recoversParity(bytes[1], "colunas (lido do arquivo)");
+                System.out.println();
+                byte[] parity = calculateBitParity(matrix);
+                // guardando em um vetor de inteiros para facilitar manipulação
+                int [] calculatedParityLines = recoversParity(parity[0], "linhas (calculado)");
+                int [] parityCalculatedColumns = recoversParity(parity[1], "colunas (calculado)");
                 
+                ArrayList<Integer> linesWithErrors = checkerErrors(rowParity, calculatedParityLines);
+                ArrayList<Integer> columnsWithErrors = checkerErrors(columnParity, parityCalculatedColumns);
                 
                 System.out.println("\n");
                 System.out.println("---------------------------------");
@@ -64,6 +72,16 @@ public class Decoder {
         } catch (Exception ex) {
             System.err.println(ex.toString());
         }
+    }
+    
+    public static ArrayList<Integer> checkerErrors(int [] readParity, int [] calculatedParity){
+        ArrayList<Integer> list= new ArrayList<>();
+        for (int i = 0; i < readParity.length; i++) {
+            if(readParity[i] != calculatedParity[i]){
+                list.add(i);
+            }
+        }
+        return list;
     }
     
     public static void display(int value) {
@@ -82,7 +100,7 @@ public class Decoder {
         int[] rowParity = new int[8];
         // mostrar ou não o print
         if(!txt.isEmpty()){
-            System.out.print("Paridade da "+txt+" : ");
+            System.out.print("Paridade das "+txt+" : ");
         }
         for (int bit = 1; bit <= 8; bit++) {
             System.out.print((value & DISPLAY_MASK) == 0 ? '0' : '1');
