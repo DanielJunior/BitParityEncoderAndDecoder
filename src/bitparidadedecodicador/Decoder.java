@@ -74,6 +74,23 @@ public class Decoder {
         }
     }
     
+    public static void validatesCorrection(ArrayList<Integer> linesWithErrors, ArrayList<Integer> columnsWithErrors){
+      if(linesWithErrors.isEmpty() && columnsWithErrors.isEmpty()){
+          System.out.println("As paridades são iguais. Os dados estão corretos.");    
+      } else {
+          
+          System.out.println("O dado foi danificado.");
+          System.out.println("Foi verificado erro(s) na(s) linha(s): " + (linesWithErrors.isEmpty() ? linesWithErrors.toString() : "Sem erros nas linhas."));
+          System.out.println("Foi verificado erro(s) na(s) coluna(s): " + (columnsWithErrors.isEmpty() ? columnsWithErrors.toString() : "Sem erros nas colunas."));
+          
+          if((linesWithErrors.size() > 1 || columnsWithErrors.size() > 1)){
+              System.out.println("Recuperação impossível. Não se sabe ao certo qual bit foi danificado.");
+          } else {
+              System.out.println("Recuperação realizada. O bit danificado foi identificado e recuperado.");
+          }
+      }
+    }
+    
     public static ArrayList<Integer> checkerErrors(int [] readParity, int [] calculatedParity){
         ArrayList<Integer> list= new ArrayList<>();
         for (int i = 0; i < readParity.length; i++) {
