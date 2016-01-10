@@ -38,9 +38,14 @@ public class Decoder {
                     bytes = new byte[READ_BYTES];
                     in.read(bytes);
                 } else {
-                    redundant = READ_BYTES - availableBytes;
-                    bytes = new byte[READ_BYTES];
-                    in.read(bytes);
+                    if(availableBytes < 3){
+                        System.out.println("Execução abortada. Último bloco com menos de 3 bytes.");
+                        break;
+                    } else {
+                        redundant = READ_BYTES - availableBytes;
+                        bytes = new byte[READ_BYTES];
+                        in.read(bytes);
+                    }
                 }
 
                 showBytes(bytes, "lidos");
@@ -59,8 +64,11 @@ public class Decoder {
                 
                 ArrayList<Integer> linesWithErrors = checkerErrors(rowParity, calculatedParityLines);
                 ArrayList<Integer> columnsWithErrors = checkerErrors(columnParity, parityCalculatedColumns);
-                validatesCorrection(linesWithErrors, columnsWithErrors);
                 
+                if(validatesCorrection(linesWithErrors, columnsWithErrors)) {
+                    System.out.println("Execução abortada. Foi encontrado um erro irrecuperável.");
+                    break;
+                }
                 
                 System.out.println("\n");
                 System.out.println("---------------------------------");
@@ -86,7 +94,7 @@ public class Decoder {
         }
     }
     
-    private void validatesCorrection(ArrayList<Integer> linesWithErrors, ArrayList<Integer> columnsWithErrors){
+    private boolean validatesCorrection(ArrayList<Integer> linesWithErrors, ArrayList<Integer> columnsWithErrors){
       System.out.println();
       if(linesWithErrors.isEmpty() && columnsWithErrors.isEmpty()){
           System.out.println("As paridades são iguais. O dado está correto.");    
@@ -97,13 +105,15 @@ public class Decoder {
           System.out.println("Foi verificado erro(s) na(s) coluna(s): " + (columnsWithErrors.isEmpty() ? columnsWithErrors.toString() : "Sem erros nas colunas."));
           
           if((linesWithErrors.size() > 1 || columnsWithErrors.size() > 1)){
-              System.out.println("Recuperação impossível. Não se sabe ao certo qual bit foi danificado.");
+              System.out.println("Recuperação impossível. Não se sabe ao certo quais bits foram danificados.");
+              return true;
           } else {
               System.out.println("Recuperação realizada. O bit danificado foi identificado e recuperado.");
               // exite um erro na linha e um na coluna.
               correctsError(linesWithErrors.get(0), columnsWithErrors.get(0));
           }
       }
+      return false;
     }
     
     public static ArrayList<Integer> checkerErrors(int [] readParity, int [] calculatedParity){
