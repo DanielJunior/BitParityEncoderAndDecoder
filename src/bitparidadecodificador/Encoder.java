@@ -21,10 +21,10 @@ public class Encoder {
     public static final int COLUMN = 1;
     public static final int BYTE = 8;
 
-    public void encoder(String filename) throws Exception {
+    public void encoder(String filename, String output) throws Exception {
         //Utilizo esses dois Files para poder fazer a troca de nomes depois
         File source = new File(filename);
-        File destiny = new File("temp.bin");
+        File destiny = new File(output);
         try (RandomAccessFile in = new RandomAccessFile(source, "rw"); FileOutputStream out = new FileOutputStream(destiny)) {
             //variável que monitora se na leitura do array de bytes foi gerado algum byte de redundância
             long redundant = 0;
@@ -53,8 +53,8 @@ public class Encoder {
                 System.out.println("\n");
                 System.out.println("---------------------------------");
 
-                out.write(parity[ROW]);
                 out.write(parity[COLUMN]);
+                out.write(parity[ROW]);
 
                 for (int i = 0; i < bytes.length - redundant; i++) {
                     out.write(bytes[i]);
@@ -68,11 +68,6 @@ public class Encoder {
             System.err.println("Erro na manipulação do arquivo!");
         } catch (Exception ex) {
             System.err.println(ex.toString());
-        }
-        if (source.delete()) {
-            destiny.renameTo(source);
-        } else {
-            throw new Exception("Erro na renomeação de arquivo!");
         }
     }
 

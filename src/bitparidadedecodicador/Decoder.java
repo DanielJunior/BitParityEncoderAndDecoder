@@ -54,13 +54,14 @@ public class Decoder {
                 System.out.println();
                 showBuildedMatrix();
 
-                int [] rowParity = recoversParity(bytes[0], "linhas (lido do arquivo)");
-                int [] columnParity = recoversParity(bytes[1], "colunas (lido do arquivo)");
+                int [] columnParity = recoversParity(bytes[0], "colunas (lido do arquivo)");
+                int [] rowParity = recoversParity(bytes[1], "linhas (lido do arquivo)");
+                
                 System.out.println();
                 byte[] parity = calculateBitParity(matrix);
                 // guardando em um vetor de inteiros para facilitar manipulação
-                int [] calculatedParityLines = recoversParity(parity[0], "linhas (calculado)");
                 int [] parityCalculatedColumns = recoversParity(parity[1], "colunas (calculado)");
+                int [] calculatedParityLines = recoversParity(parity[0], "linhas (calculado)");
                 
                 ArrayList<Integer> linesWithErrors = checkerErrors(rowParity, calculatedParityLines);
                 ArrayList<Integer> columnsWithErrors = checkerErrors(columnParity, parityCalculatedColumns);
