@@ -23,10 +23,10 @@ public class Decoder {
     public static final int DISPLAY_MASK = 1 << 7;
     public int matrix[][] ;
 
-    public void decoder(String filename) throws Exception {
+    public void decoder(String filename, String output) throws Exception {
         
         File source = new File(filename);
-        File destiny = new File("temp.bin");
+        File destiny = new File(output);
         
         try (RandomAccessFile in = new RandomAccessFile(source, "rw"); FileOutputStream out = new FileOutputStream(destiny)) {
           
@@ -70,6 +70,11 @@ public class Decoder {
                     break;
                 }
                 
+                // salva no arquivo de saída
+                for (int i = 2; i < bytes.length - redundant; i++) {
+                    out.write(bytes[i]);
+                }
+                
                 System.out.println("\n");
                 System.out.println("---------------------------------");
             }
@@ -101,8 +106,8 @@ public class Decoder {
       } else {
           
           System.out.println("O dado foi danificado.");
-          System.out.println("Foi verificado erro(s) na(s) linha(s): " + (linesWithErrors.isEmpty() ? linesWithErrors.toString() : "Sem erros nas linhas."));
-          System.out.println("Foi verificado erro(s) na(s) coluna(s): " + (columnsWithErrors.isEmpty() ? columnsWithErrors.toString() : "Sem erros nas colunas."));
+          System.out.println("Foi verificado erro(s) na(s) linha(s): " + (!linesWithErrors.isEmpty() ? linesWithErrors.toString() : "Sem erros nas linhas."));
+          System.out.println("Foi verificado erro(s) na(s) coluna(s): " + (!columnsWithErrors.isEmpty() ? columnsWithErrors.toString() : "Sem erros nas colunas."));
           
           if((linesWithErrors.size() > 1 || columnsWithErrors.size() > 1)){
               System.out.println("Recuperação impossível. Não se sabe ao certo quais bits foram danificados.");

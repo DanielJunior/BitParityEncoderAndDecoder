@@ -5,7 +5,7 @@
  */
 package bitparidadedecodicador;
 
-import bitparidadecodificador.FileHandler;
+import java.util.Scanner;
 
 /**
  *
@@ -15,11 +15,18 @@ public class ParityBitDecoder {
     
      /**
      * @param args the command line arguments
+     * @throws java.lang.Exception
      */
     public static void main(String[] args) throws Exception {
         // TODO code application logic here
+        Scanner keyboard = new Scanner(System.in);
+        System.out.print("Digite o nome do arquivo de entrada: ");
+        String filename = keyboard.nextLine();
+        System.out.print("Digite o nome do arquivo de saída: ");
+        String output = keyboard.nextLine();
+        System.out.println();
         Decoder d = new Decoder();
-        d.decoder("teste.bin");
+        d.decoder(filename, output);
     }
     
 }
