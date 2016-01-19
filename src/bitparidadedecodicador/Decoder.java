@@ -39,7 +39,7 @@ public class Decoder {
                     in.read(bytes);
                 } else {
                     if(availableBytes < 3){
-                        System.out.println("Execução abortada. Último bloco com menos de 3 bytes.");
+                        System.out.println("Execução abortada. Bloco com menos de 3 bytes.");
                         break;
                     } else {
                         redundant = READ_BYTES - availableBytes;
